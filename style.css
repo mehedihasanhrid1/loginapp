@@ -4,8 +4,8 @@ body {
     background: #eef1f7;
     height: 100vh;
     display: flex;
-        align-items: center;
-        justify-content: center;
+    align-items: center;
+    justify-content: center;
 }
 
 .auth-card {
@@ -14,16 +14,16 @@ body {
     border-radius: 14px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
     animation: fadeIn .4s ease;
-    padding: 20px;
+    padding: 30px;
     display: flex;
-    align-items: center;
     justify-content: center;
-    flex-direction: column;
 }
 
-.form-container{
-    width: 380px;
-       
+.form-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 @keyframes fadeIn {
@@ -36,13 +36,33 @@ body {
     }
 }
 
-.auth-card input {
-    width: 98%;
-    padding: 12px;
+.form-group {
+    width: 100%;
     margin: 12px 0;
+    position: relative;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
     border-radius: 10px;
     border: 1px solid #ccc;
-    font-size: 15px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.password-wrap input {
+    padding-right: 40px;
+}
+
+.toggle-eye {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    font-size: 18px;
 }
 
 .btn-primary {
@@ -52,59 +72,16 @@ body {
     background: #007bff;
     color: white;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 17px;
     cursor: pointer;
-    margin-left: 10px;
-}
-
-.btn-danger {
-    padding: 10px 18px;
-    border: none;
-    background: #d93636;
-    color: white;
-    border-radius: 10px;
-    cursor: pointer;
-}
-
-.password-wrap {
-    position: relative;
-}
-
-.toggle-eye {
-    position: absolute;
-    right: -4px;
-    top: 24px;
-    cursor: pointer;
-    color: #666;
-}
-
-.switch-link {
     margin-top: 10px;
 }
 
-.dash-header {
-    padding: 22px;
-    background: #007bff;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.switch-link {
+    margin-top: 12px;
 }
 
-.dash-main {
-    padding: 40px;
-    text-align: center;
+.top-head {
+    font-size: 28px;
+    margin-bottom: 15px;
 }
-
-.dash-footer {
-    padding: 20px;
-    text-align: center;
-    background: #ddd;
-    margin-top: 50px;
-}
-
-.top-head{
-    text-align: center;
-    font-size: 30px;
-}
-
