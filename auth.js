@@ -34,8 +34,16 @@ document.addEventListener("click", e => {
 
 /* ================= SIGNUP ================= */
 
+function loadLocalUsers() {
+    return JSON.parse(localStorage.getItem("users") || "[]");
+}
+
+function saveLocalUsers(users) {
+    localStorage.setItem("users", JSON.stringify(users));
+}
+
 if (document.getElementById("signupBtn")) {
-    signupBtn.onclick = async () => {
+    signupBtn.onclick = () => {
         const name = document.getElementById("name").value.trim();
         const email = document.getElementById("email").value.trim();
         const password = document.getElementById("password").value.trim();
@@ -43,20 +51,22 @@ if (document.getElementById("signupBtn")) {
         if (!name || !email || !password)
             return showToast("All fields are required");
 
-        if (!isValidPassword(password))
+        if (password.length < 6)
             return showToast("Password must be at least 6 characters");
 
-        const users = await loadUsers();
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
 
         if (users.some(u => u.email === email))
             return showToast("Email already registered");
 
-        showToast("Account validated successfully", "success");
-        showToast("Backend required to store new user");
+        users.push({ name, email, password });
+        localStorage.setItem("users", JSON.stringify(users));
 
-        setTimeout(() => location.href = "index.html", 1200);
+        showToast("Account created successfully", "success");
+        setTimeout(() => location.href = "index.html", 800);
     };
 }
+
 
 /* ================= LOGIN ================= */
 
