@@ -1,20 +1,25 @@
-async function loadUsers() {
-    try {
-        const res = await fetch("user.json");
-        if (!res.ok) throw new Error();
-        return await res.json();
-    } catch {
-        showToast("Failed to load user data");
-        return [];
-    }
+/* ================= UTILITIES ================= */
+
+function getUsers() {
+    return JSON.parse(localStorage.getItem("users") || "[]");
 }
 
-// Password validation rule
+function saveUsers(users) {
+    localStorage.setItem("users", JSON.stringify(users));
+}
+
+function getLoggedUser() {
+    return JSON.parse(localStorage.getItem("loggedUser"));
+}
+
+/* ================= PASSWORD RULE ================= */
+
 function isValidPassword(password) {
     return password.length >= 6;
 }
 
-// Show / Hide Password
+/* ================= SHOW / HIDE PASSWORD ================= */
+
 document.addEventListener("click", e => {
     if (e.target.classList.contains("toggle-eye")) {
         const icon = e.target;
@@ -22,27 +27,19 @@ document.addEventListener("click", e => {
 
         if (input.type === "password") {
             input.type = "text";
-            icon.classList.remove("fa-eye");
-            icon.classList.add("fa-eye-slash");
+            icon.classList.replace("fa-eye", "fa-eye-slash");
         } else {
             input.type = "password";
-            icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye");
+            icon.classList.replace("fa-eye-slash", "fa-eye");
         }
     }
 });
 
 /* ================= SIGNUP ================= */
 
-function loadLocalUsers() {
-    return JSON.parse(localStorage.getItem("users") || "[]");
-}
+const signupBtn = document.getElementById("signupBtn");
 
-function saveLocalUsers(users) {
-    localStorage.setItem("users", JSON.stringify(users));
-}
-
-if (document.getElementById("signupBtn")) {
+if (signupBtn) {
     signupBtn.onclick = () => {
         const name = document.getElementById("name").value.trim();
         const email = document.getElementById("email").value.trim();
@@ -51,43 +48,44 @@ if (document.getElementById("signupBtn")) {
         if (!name || !email || !password)
             return showToast("All fields are required");
 
-        if (password.length < 6)
+        if (!isValidPassword(password))
             return showToast("Password must be at least 6 characters");
 
-        const users = JSON.parse(localStorage.getItem("users") || "[]");
+        const users = getUsers();
 
         if (users.some(u => u.email === email))
             return showToast("Email already registered");
 
         users.push({ name, email, password });
-        localStorage.setItem("users", JSON.stringify(users));
+        saveUsers(users);
 
         showToast("Account created successfully", "success");
         setTimeout(() => location.href = "index.html", 800);
     };
 }
 
-
 /* ================= LOGIN ================= */
 
-if (document.getElementById("loginBtn")) {
-    loginBtn.onclick = async () => {
-        const email = loginEmail.value.trim();
-        const password = loginPassword.value.trim();
+const loginBtn = document.getElementById("loginBtn");
+
+if (loginBtn) {
+    loginBtn.onclick = () => {
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value.trim();
 
         if (!email || !password)
             return showToast("Email and password required");
 
-        const users = await loadUsers();
+        const users = getUsers();
 
-        const found = users.find(
+        const user = users.find(
             u => u.email === email && u.password === password
         );
 
-        if (!found)
+        if (!user)
             return showToast("Invalid login credentials");
 
-        localStorage.setItem("loggedUser", JSON.stringify(found));
+        localStorage.setItem("loggedUser", JSON.stringify(user));
         showToast("Login successful", "success");
 
         setTimeout(() => location.href = "dashboard.html", 800);
@@ -96,43 +94,57 @@ if (document.getElementById("loginBtn")) {
 
 /* ================= DASHBOARD ================= */
 
-const loggedUser = JSON.parse(localStorage.getItem("loggedUser"));
+const loggedUser = getLoggedUser();
 
-if (loggedUser && document.getElementById("userName")) {
-    userName.textContent = loggedUser.name;
-    userEmail.textContent = loggedUser.email;
+if (loggedUser) {
+    const userName = document.getElementById("userName");
+    const userEmail = document.getElementById("userEmail");
+
+    if (userName) userName.textContent = loggedUser.name;
+    if (userEmail) userEmail.textContent = loggedUser.email;
 }
 
 /* ================= CHANGE PASSWORD ================= */
 
-if (document.getElementById("changePassBtn")) {
-    changePassBtn.onclick = () => {
-        const newPass = newPassword.value.trim();
-        const confirmPass = confirmPassword.value.trim();
+const changePassBtn = document.getElementById("changePassBtn");
 
-        if (!newPass || !confirmPass)
+if (changePassBtn) {
+    changePassBtn.onclick = () => {
+        const newPassword = document.getElementById("newPassword").value.trim();
+        const confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+        if (!newPassword || !confirmPassword)
             return showToast("All fields are required");
 
-        if (newPass.length < 6)
+        if (!isValidPassword(newPassword))
             return showToast("Password must be at least 6 characters");
 
-        if (newPass !== confirmPass)
+        if (newPassword !== confirmPassword)
             return showToast("Passwords do not match");
 
-        const updatedUser = { ...loggedUser, password: newPass };
-        localStorage.setItem("loggedUser", JSON.stringify(updatedUser));
+        const users = getUsers();
+        const index = users.findIndex(u => u.email === loggedUser.email);
 
-        showToast("Password updated for current session", "success");
+        if (index === -1)
+            return showToast("User session invalid");
+
+        users[index].password = newPassword;
+        saveUsers(users);
+
+        localStorage.setItem("loggedUser", JSON.stringify(users[index]));
+
+        showToast("Password updated successfully", "success");
 
         newPassword.value = "";
         confirmPassword.value = "";
     };
 }
 
-
 /* ================= LOGOUT ================= */
 
-if (document.getElementById("logoutBtn")) {
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (logoutBtn) {
     logoutBtn.onclick = () => {
         localStorage.removeItem("loggedUser");
         location.href = "index.html";
